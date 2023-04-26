@@ -54,6 +54,16 @@ const driverStandings = parseCsvToSQL(
   }
 );
 
+const drivers = parseCsvToSQL(
+  fs.readFileSync(
+    "Formula1-2023-20230422T173824Z-001/Formula1-2023/drivers.csv",
+    "utf8"
+  ),
+  (mappedValues) => {
+    return `INSERT INTO Driver (DriverID, DriverRef, Number, Code, Forename, Surname, DateOfBirth, Nationality, URL) VALUES (${mappedValues.driverId}, '${mappedValues.driverRef}', ${mappedValues.number}, '${mappedValues.code}', '${mappedValues.forename}', '${mappedValues.surname}', '${mappedValues.dob}', '${mappedValues.nationality}', '${mappedValues.url}');`;
+  }
+);
+
 const pitStops = parseCsvToSQL(
   fs.readFileSync(
     "Formula1-2023-20230422T173824Z-001/Formula1-2023/pit_stops.csv",
@@ -144,20 +154,39 @@ const geocities15K = parseCsvToSQL(
   }
 );
 
-fs.writeFileSync(
-  "inserts.sql",
-  [
-    ...circuits,
-    ...constructors,
-    ...driverStandings,
-    ...pitStops,
-    ...qualifying,
-    ...races,
-    ...results,
-    ...seasons,
-    ...status,
-    ...airports,
-    ...countries,
-    ...geocities15K,
-  ].join("\n")
-);
+// Write circuits to circuits.sql
+// fs.writeFileSync("circuits.sql", circuits.join("\n"));
+
+// // Write constructors to constructors.sql
+// fs.writeFileSync("constructors.sql", constructors.join("\n"));
+
+// // Write driver standings to driver_standings.sql
+// fs.writeFileSync("driver_standings.sql", driverStandings.join("\n"));
+
+// // Write pit stops to pit_stops.sql
+// fs.writeFileSync("pit_stops.sql", pitStops.join("\n"));
+
+// // Write qualifying to qualifying.sql
+// fs.writeFileSync("qualifying.sql", qualifying.join("\n"));
+
+// // Write races to races.sql
+// fs.writeFileSync("races.sql", races.join("\n"));
+
+// // Write results to results.sql
+// fs.writeFileSync("results.sql", results.join("\n"));
+
+// // Write seasons to seasons.sql
+// fs.writeFileSync("seasons.sql", seasons.join("\n"));
+
+// // Write status to status.sql
+// fs.writeFileSync("status.sql", status.join("\n"));
+
+// // Write airports to airports.sql
+// fs.writeFileSync("airports.sql", airports.join("\n"));
+
+// // Write countries to countries.sql
+// fs.writeFileSync("countries.sql", countries.join("\n"));
+
+// // Write geocities15K to geocities15K.sql
+fs.writeFileSync("geocities15K.sql", geocities15K.join("\n"));
+// fs.writeFileSync("drivers.sql", drivers.join("\n"));

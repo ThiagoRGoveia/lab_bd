@@ -25,9 +25,7 @@ CREATE TABLE DriverStandings (
     Points INT,
     Position INT,
     PositionText VARCHAR(255),
-    Wins INT,
-    -- FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
-    -- FOREIGN KEY (DriverID) REFERENCES Driver(DriverID)
+    Wins INT
 );
 
 CREATE TABLE Driver (
@@ -49,9 +47,7 @@ CREATE TABLE LapTimes (
     Position INT,
     Time VARCHAR(255),
     Milliseconds INT,
-    PRIMARY KEY (RaceID, DriverID, Lap),
-    -- FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
-    -- FOREIGN KEY (DriverID) REFERENCES Driver(DriverID)
+    PRIMARY KEY (RaceID, DriverID, Lap)
 );
 
 CREATE TABLE PitStops (
@@ -62,9 +58,7 @@ CREATE TABLE PitStops (
     Time VARCHAR(255),
     Duration VARCHAR(255),
     Milliseconds INT,
-    PRIMARY KEY (RaceID, DriverID, Stop),
-    -- FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
-    -- FOREIGN KEY (DriverID) REFERENCES Driver(DriverID)
+    PRIMARY KEY (RaceID, DriverID, Stop)
 );
 
 CREATE TABLE Qualifying (
@@ -76,10 +70,7 @@ CREATE TABLE Qualifying (
     Position INT,
     Q1 VARCHAR(255),
     Q2 VARCHAR(255),
-    Q3 VARCHAR(255),
-    -- FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
-    -- FOREIGN KEY (DriverID) REFERENCES Driver(DriverID),
-    -- FOREIGN KEY (ConstructorID) REFERENCES Constructors(ConstructorID)
+    Q3 VARCHAR(255)
 );
 
 CREATE TABLE Races (
@@ -90,8 +81,7 @@ CREATE TABLE Races (
     Name VARCHAR(255),
     Date DATE,
     Time TIME,
-    URL VARCHAR(2083),
-    -- FOREIGN KEY (CircuitID) REFERENCES Circuits(CircuitID)
+    URL VARCHAR(2083)
 );
 
 CREATE TABLE Results (
@@ -112,11 +102,7 @@ CREATE TABLE Results (
     Rank INT,
     FastestLapTime VARCHAR(255),
     FastestLapSpeed FLOAT,
-    StatusID INT,
-    -- FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
-    -- FOREIGN KEY (DriverID) REFERENCES Driver(DriverID),
-    -- FOREIGN KEY (ConstructorID) REFERENCES Constructors(ConstructorID),
-    -- FOREIGN KEY (StatusID) REFERENCES Status(StatusID)
+    StatusID INT
 );
 
 CREATE TABLE Seasons (Year INT PRIMARY KEY, URL VARCHAR(2083));
@@ -174,3 +160,49 @@ CREATE TABLE Geocities15K (
     TimeZone VARCHAR(40),
     Modification DATE
 );
+
+ALTER TABLE
+    DriverStandings
+ADD
+    FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
+ADD
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID);
+
+ALTER TABLE
+    LapTimes
+ADD
+    FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
+ADD
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID);
+
+ALTER TABLE
+    PitStops
+ADD
+    FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
+ADD
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID);
+
+ALTER TABLE
+    Qualifying
+ADD
+    FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
+ADD
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID),
+ADD
+    FOREIGN KEY (ConstructorID) REFERENCES Constructors(ConstructorID);
+
+ALTER TABLE
+    Races
+ADD
+    FOREIGN KEY (CircuitID) REFERENCES Circuits(CircuitID);
+
+ALTER TABLE
+    Results
+ADD
+    FOREIGN KEY (RaceID) REFERENCES Races(RaceID),
+ADD
+    FOREIGN KEY (DriverID) REFERENCES Driver(DriverID),
+ADD
+    FOREIGN KEY (ConstructorID) REFERENCES Constructors(ConstructorID),
+ADD
+    FOREIGN KEY (StatusID) REFERENCES Status(StatusID);
