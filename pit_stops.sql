@@ -9771,4 +9771,3 @@ INSERT INTO PitStops (RaceID, DriverID, Stop, Lap, Time, Duration, Milliseconds)
 INSERT INTO PitStops (RaceID, DriverID, Stop, Lap, Time, Duration, Milliseconds) VALUES (1100, 815, 5, 57, '17:02:25', '30:53.568', 1853568);
 INSERT INTO PitStops (RaceID, DriverID, Stop, Lap, Time, Duration, Milliseconds) VALUES (1100, 4, 3, 57, '17:02:27', '30:45.073', 1845073);
 INSERT INTO PitStops (RaceID, DriverID, Stop, Lap, Time, Duration, Milliseconds) VALUES (1100, 840, 3, 57, '17:02:29', '30:45.925', 1845925);
-INSERT INTO PitStops (RaceID, DriverID, Stop, Lap, Time, Duration, Milliseconds) VALUES (null, null, null, null, 'null', 'null', null);
