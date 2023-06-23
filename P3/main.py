@@ -5,7 +5,7 @@ from user import User  # Assume this user module exists with all necessary class
 user = None
 
 # Create a session state object
-state = SessionState.get(user=None, page="Login")
+state = SessionState.get(user=None, page="Login") # TODO: adapt this https://docs.streamlit.io/library/api-reference/session-state
 
 def main():
     global user
