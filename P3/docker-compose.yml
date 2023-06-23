@@ -1,0 +1,9 @@
+version: "3.0"
+services:
+  lab-bd-app:
+    container_name: lab-bd-app
+    build: .
+    volumes:
+      - .:/app
+    command: tail -f /dev/null
+    network_mode: "host"
