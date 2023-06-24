@@ -1,3 +1,6 @@
+-- Overviews
+--
+-- Admin
 CREATE OR REPLACE FUNCTION overviewAdmin()
 RETURNS TABLE ("Num Pilotos" BIGINT, "Num Escuderias" BIGINT, "Num Corridas" BIGINT, "Num Temporadas" BIGINT)
 AS
@@ -12,7 +15,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
+-- Escuderia
 CREATE OR REPLACE FUNCTION overviewEscuderia(IDEscuderia INT)
 RETURNS TABLE ("Nome" TEXT,"Num Vitórias" BIGINT, "Num Pilotos" BIGINT, "Primeiro Ano" INT, "Último Ano" INT)
 AS
@@ -51,7 +54,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-
+-- Piloto
 CREATE OR REPLACE FUNCTION overviewPiloto(IDPiloto INT)
 RETURNS TABLE ("Nome" TEXT, "Sobrenome" TEXT, "Número de Vitórias" BIGINT, "Ano de Estréia" INT, "Último ano" INT)
 AS
@@ -89,9 +92,14 @@ BEGIN
 END;
 $$
 LANGUAGE plpgsql
+--
+-- Overviews end
 
 
 
+-- Relatórios
+--
+-- Relatório 1
 CREATE OR REPLACE FUNCTION get_status_count()
 RETURNS TABLE (
     status_name varchar,
@@ -114,8 +122,6 @@ SELECT * FROM get_status_count();
 
 
 -- Relatorio 2
-
-
 CREATE INDEX idx_airports_type ON airports(type);
 CREATE INDEX idx_cities_name ON geocities15k(name);
 CREATE INDEX idx_airports_country ON airports(isocountry);
@@ -176,8 +182,6 @@ SELECT earth_distance(
 
 
 -- Relatorio 3
-
-
 CREATE OR REPLACE FUNCTION get_driver_wins(CONSTRUCTOR_ID int)
 RETURNS TABLE (
     driver_name text,
@@ -204,8 +208,6 @@ SELECT * FROM get_driver_wins(1);
 
 
 -- Relatorio 4
-
-
 CREATE OR REPLACE FUNCTION get_constructor_status_count(CONSTRUCTOR_ID int)
 RETURNS TABLE (
     status varchar,
@@ -229,10 +231,6 @@ SELECT * FROM get_constructor_status_count(1);
 
 
 -- Relatorio 5
-
-
-
-
 CREATE OR REPLACE FUNCTION get_driver_victories(DRIVER_ID int)
 RETURNS TABLE (
     year int,
@@ -259,8 +257,6 @@ drop function get_driver_victories(driver_id integer)
 
 
 -- Relatorio 6
-
-
 CREATE OR REPLACE FUNCTION get_driver_status(DRIVER_ID int)
 RETURNS TABLE (
     status varchar,
@@ -281,11 +277,15 @@ $$;
 
 
 SELECT * FROM get_driver_status(2);
+--
+-- Relatórios end
 
 
 
+-- Funções de usuários
+--
 -- Admin
--- Para adicionar nova escuderia
+-- Adiciona nova escuderia
 CREATE OR REPLACE FUNCTION cadastrarEscuderia(_ConstructorRef VARCHAR, _Name VARCHAR, _Nationality VARCHAR, _URL VARCHAR)
 RETURNS VOID AS $$
 DECLARE
@@ -300,10 +300,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-
--- Para adicionar novo piloto
+-- Adiciona novo piloto
 CREATE OR REPLACE FUNCTION cadastrarPiloto(_DriverRef VARCHAR, _Number INT, _Code VARCHAR, _Forename VARCHAR, _Surname VARCHAR, _DateOfBirth DATE, _Nationality VARCHAR)
 RETURNS VOID AS $$
 DECLARE
@@ -318,10 +315,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-
---Escuderia
+-- Escuderia
 -- Consulta o piloto por nome
 CREATE OR REPLACE FUNCTION consultarPilotoPorNome(_Forename TEXT, _ConstructorRef VARCHAR)
 RETURNS TABLE(FullName TEXT, DateOfBirth DATE, Nationality VARCHAR) AS $$
@@ -337,56 +331,8 @@ $$ LANGUAGE plpgsql;
 
 
 
-
--- Admin
--- Para adicionar nova escuderia
-CREATE OR REPLACE FUNCTION cadastrarEscuderia(_ConstructorRef VARCHAR, _Name VARCHAR, _Nationality VARCHAR, _URL VARCHAR)
-RETURNS VOID AS $$
-DECLARE
-    _constructorid INT;
-BEGIN
-    SELECT COALESCE(MAX(constructorid), 0) + 1 INTO _constructorid FROM CONSTRUCTORS;
-    INSERT INTO CONSTRUCTORS (constructorid, ConstructorRef, Name, nationality, URL)
-    VALUES (_constructorid, _ConstructorRef, _Name, _Nationality, _URL);
-EXCEPTION
-    WHEN unique_violation THEN
-        RAISE EXCEPTION 'Construtor já existe.';
-END;
-$$ LANGUAGE plpgsql;
-
-
--- Para adicionar novo piloto
-CREATE OR REPLACE FUNCTION cadastrarPiloto(_DriverRef VARCHAR, _Number INT, _Code VARCHAR, _Forename VARCHAR, _Surname VARCHAR, _DateOfBirth DATE, _Nationality VARCHAR)
-RETURNS VOID AS $$
-DECLARE
-    _DriverID INT;
-BEGIN
-    SELECT COALESCE(MAX(driverid), 0) + 1 INTO _DriverID FROM DRIVER;
-    INSERT INTO DRIVER (driverid, driverref, number, code, forename, surname, dateofbirth, nationality)
-    VALUES (_DriverID, _DriverRef, _Number, _Code, _Forename, _Surname, _DateOfBirth, _Nationality);
-EXCEPTION
-    WHEN unique_violation THEN
-        RAISE EXCEPTION 'Piloto já existe.';
-END;
-$$ LANGUAGE plpgsql;
-
-
---Escuderia
--- Consulta o piloto por nome
-CREATE OR REPLACE FUNCTION consultarPilotoPorNome(_Forename TEXT, _ConstructorRef VARCHAR)
-RETURNS TABLE(FullName TEXT, DateOfBirth DATE, Nationality VARCHAR) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT d.Forename || ' ' || d.Surname, d.dateofbirth, d.Nationality
-    FROM DRIVER d
-    JOIN RESULTS r ON d.driverid = r.driverid
-    JOIN CONSTRUCTORS c ON r.constructorid = c.constructorid
-    WHERE d.Forename = _Forename AND c.ConstructorRef = _ConstructorRef;
-END;
-$$ LANGUAGE plpgsql;
-
-
--- Description: SQL script to create tables and functions for authentication
+-- Tables and functions for user authentication
+--
 CREATE TABLE users (
   Userid SERIAL PRIMARY KEY,
   Login VARCHAR(255) NOT NULL UNIQUE,
@@ -403,8 +349,6 @@ CREATE TABLE logs (
   Date DATE NOT NULL DEFAULT CURRENT_DATE,
   LoginTime TIME NOT NULL DEFAULT CURRENT_TIME
 );
-
-
 
 
 -- Authentication function
@@ -480,8 +424,6 @@ AFTER INSERT OR UPDATE
 ON constructors
 FOR EACH ROW
 EXECUTE PROCEDURE sync_team_users();
-
-
 
 
 
