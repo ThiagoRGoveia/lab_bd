@@ -342,6 +342,8 @@ CREATE TABLE users (
 );
 
 INSERT into users (Userid, Login, Password, Type, OriginalId) values (1, 'TEST', md5('TEST'), 'Admin', 1);
+INSERT into users (Userid, Login, Password, Type, OriginalId) values (1, 'TEST', md5('TEST'), 'Admin', 1);
+CREATE USER test WITH PASSWORD 'TEST';
 
 CREATE TABLE logs (
   LogId SERIAL PRIMARY KEY,
@@ -393,6 +395,9 @@ BEGIN
     VALUES (NEW.driverref || ' d', md5(NEW.driverref), 'Driver', NEW.driverid)
     ON CONFLICT (OriginalId) DO UPDATE
     SET Login = NEW.driverref || ' d', Password = md5(NEW.driverref);
+
+    EXECUTE format('CREATE USER %I WITH PASSWORD %L;', NEW.driverref, NEW.driverref);
+    EXECUTE format('GRANT %I TO %I;', 'team_role', NEW.driverref);
   END IF;
 
   RETURN NEW;
@@ -413,6 +418,9 @@ BEGIN
     VALUES (NEW.constructorref || ' c', md5(NEW.constructorref), 'Team', NEW.constructorid)
     ON CONFLICT (OriginalId) DO UPDATE
     SET Login = NEW.constructorref || ' c', Password = md5(NEW.constructorref);
+
+    EXECUTE format('CREATE USER %I WITH PASSWORD %L;', NEW.constructorref, NEW.constructorref);
+    EXECUTE format('GRANT %I TO %I;', 'team_role', NEW.constructorref);
   END IF;
 
   RETURN NEW;
