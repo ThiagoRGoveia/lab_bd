@@ -4,8 +4,8 @@ import os
 class DatabaseConnection:
     def __init__(self, user, password):
         self.dbname = os.environ.get('DB_NAME')
-        self.user = user
-        self.password = password
+        self.user = 'postgres'
+        self.password = 'changeme'
         self.host = os.environ.get('DB_HOST')
         self.port = os.environ.get('DB_PORT')
 

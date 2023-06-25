@@ -1,6 +1,7 @@
 import settings
 import streamlit as st
-from user import User
+import pandas as pd 
+from user import User, Admin, Constructor, Driver
 
 # Create a session state object
 if "user" not in st.session_state:
@@ -10,35 +11,26 @@ if "page" not in st.session_state:
 
 def main():
     st.sidebar.title("Navigation")
-    selection = st.sidebar.radio("Go to", ["Login", "Overview", "Reports", "Register Team", "Register Driver", "Search by Forename"])
+    if 'page' not in st.session_state:
+        st.session_state['page'] = 'Login'
 
-    if selection == "Login":
-        st.session_state.user = login()
-    elif selection == "Overview":
-        if st.session_state.user is not None:
-            overview(st.session_state.user)
-        else:
-            st.error("Please login first!")
-    elif selection == "Reports":
-        if st.session_state.user is not None:
-            reports(st.session_state.user)
-        else:
-            st.error("Please login first!")
-    elif selection == "Register Team":
-        if st.session_state.user is not None and st.session_state.user.user_type == 'Admin':
-            register_team()
-        else:
-            st.error("Only Admins can register teams!")
-    elif selection == "Register Driver":
-        if st.session_state.user is not None and st.session_state.user.user_type == 'Admin':
-            register_driver()
-        else:
-            st.error("Only Admins can register drivers!")
-    elif selection == "Search by Forename":
-        if st.session_state.user is not None and st.session_state.user.user_type == 'builder':
-            search_by_forename()
-        else:
-            st.error("Only constructors can search by forename!")
+    pages = {
+        'Login': login,
+        'Overview': lambda: overview(st.session_state.user),
+        'Reports': lambda: reports(st.session_state.user),
+        'Register Team': register_team,
+        'Register Driver': register_driver,
+        'Search by Forename': search_by_forename
+    }
+
+    st.session_state.page = st.sidebar.radio("Go to", list(pages.keys()))
+
+    # Call the correct function based on the session_state
+    pages[st.session_state.page]()
+
+
+def update_page_state():
+    st.session_state.page = st.sidebar.radio("Go to", ['Login', 'Overview', 'Reports', 'Register Team', 'Register Driver', 'Search by Forename'])
 
 # Screen 1: Login Screen
 def login():
@@ -50,11 +42,9 @@ def login():
         # This function will verify the user credentials from the database
         auth = User.login(username, password)
         if auth:
-            print('AUTH', auth[0], auth[1])
+            st.session_state.user = auth
             st.success("Logged in successfully")
             st.session_state.page = "Overview"  # change page state
-            overview(st.session_state.user)
-            return User(username, password, auth[0], auth[1])
         else:
             st.error("Invalid Username/Password")
 
@@ -63,40 +53,61 @@ def overview(user):
     st.title("Overview Screen")
     
     # The name of the logged-in user, depending on their type
-    st.write(f"Hello, {user.get_fullname()}")
-
+    st.write(f"Hello, {user.get_username()}")
     # Overview information according to the user's type
+    st.write(user.user_type)
     if user.user_type == 'Admin':
         st.write("Admin Overview Info")
-    elif user.user_type == 'builder':
-        st.write("Constructor Overview Info")
-    elif user.user_type == 'pilot':
-        st.write("Pilot Overview Info")
+        data = user.get_overview()  # get the overview data
+        df = pd.DataFrame(data, columns=["Número de driveros", "Número de Escuderias", "Número de Corridas", "Número de Temporadas"])
+        st.dataframe(df,hide_index=True)
+    # elif user.user_type == 'constructor':
+    #     st.write("Constructor Overview Info")
+    # elif user.user_type == 'driver':
+    #     st.write("driver Overview Info")
 
     # Path (button or link) to Screen 3
-    if st.button("Go to Reports"):
-        reports(user)
+    # if st.button("Go to Reports"):
+    #     reports(st.session_state.user)
 
 # Screen 3: Reports Screen
 def reports(user):
     st.title("Reports Screen")
-
     if user.user_type == 'Admin':
-        if st.button("Admin Report"):
-            # This function will return the Admin report
-            report = user.get_Admin_report()
-            st.write(report)
-    elif user.user_type == 'builder':
+        reports = {
+            'Relatório - Status dos Pilotos': lambda: show_status_count_report(user),
+            'Relatório - Aeroportos próximos à cidade': lambda: show_airports_near_city_report(user)
+        }
+        st.session_state.page = st.radio("Go to", list(reports.keys()))
+        reports[st.session_state.page]()
+
+    elif user.user_type == 'Constructor':
         if st.button("Constructor Report"):
-            # This function will return the builder report
-            report = user.get_builder_report()
+            # This function will return the constructor report
+            report = user.get_constructor_report()
             st.write(report)
-    elif user.user_type == 'pilot':
-        if st.button("Pilot Report"):
-            # This function will return the pilot report
-            report = user.get_pilot_report()
+    elif user.user_type == 'Driver':
+        if st.button("driver Report"):
+            # This function will return the driver report
+            report = user.get_driver_report()
             st.write(report)
 
+def show_status_count_report(user):
+    st.title("Status Count Report")
+    # This function will return the Admin report
+    report = user.get_status_count_report()
+    df = pd.DataFrame(report, columns=["Status", "Contagem"])
+    st.dataframe(df,hide_index=True)
+
+def show_airports_near_city_report(user):
+    st.title("Airports Near City Report")
+    city = st.text_input("Cidade")
+    if st.button("Buscar"):
+        st.write("Aeroportos próximos a: ", city)
+        report = user.get_airports_near_city_report(city)
+        st.write(report)
+        df = pd.DataFrame(report)
+        st.dataframe(df,hide_index=True)
 
 def register_team():
     st.title("Register Team")
