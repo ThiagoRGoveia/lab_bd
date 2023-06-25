@@ -8,6 +8,8 @@ class User:
         self.user_type = user_type
         self.user_id = user_id
         self.db = DatabaseConnection(username, password)
+        print('USER', username, password, user_type, user_id)
+        self.db.open_connection()
 
     @classmethod
     def login(cls, username, password):
@@ -16,6 +18,8 @@ class User:
             db.open_connection()
             auth =db.query("SELECT * from authenticate_user(%s,%s)", (username, password))
             db.close_connection()
+
+            print('AUTH', auth)
 
             if (auth[0][0] == 'Admin'):
                 return Admin(username, password, auth[0][0], auth[0][1])
