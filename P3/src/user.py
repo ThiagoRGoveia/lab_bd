@@ -9,7 +9,6 @@ class User:
         self.user_id = user_id
         self.db = DatabaseConnection(username, password)
         print('USER', username, password, user_type, user_id)
-        self.db.open_connection()
 
     @classmethod
     def login(cls, username, password):
@@ -86,21 +85,24 @@ class Constructor(User):
         super().__init__(username, password, user_type, user_id)
 
     def get_overview(self):
-        """
-        This method should return the full name of the user
-        """
-        pass
+        self.db.open_connection()
+        overview = self.db.query("SELECT * FROM overviewConstructor(%s)", (self.user_id,))
+        self.db.close_connection()
+        return overview
 
-    def get_report(self):
-        """
-        This method should return a report for a constructor user
-        """
-        pass
+    def get_constructor_wins_report(self):
+        self.db.open_connection()
+        report = self.db.query("SELECT * from get_driver_wins(%s)", (self.user_id,))
+        self.db.close_connection()
+        return report
+
+    def get_constructor_status_report(self):
+        self.db.open_connection()
+        report = self.db.query("SELECT * from get_constructor_status_count(%s)", (self.user_id,))
+        self.db.close_connection()
+        return report
 
     def search_driver(self):
-        """
-        This method should search a driver
-        """
         pass
 
 
@@ -109,13 +111,21 @@ class Driver(User):
         super().__init__(username, password, user_type, user_id)
 
     def get_overview(self):
-        """
-        This method should return the full name of the user
-        """
+        self.db.open_connection()
+        overview = self.db.query("SELECT * FROM overviewDriver(%s)", (self.user_id,))
+        self.db.close_connection()
+        return overview
         pass
 
-    def get_report(self):
-        """
-        This method should return a report for a driver user
-        """
-        pass
+    def get_driver_wins_report(self):
+        self.db.open_connection()
+        report = self.db.query("SELECT * from get_driver_victories(%s)", (self.user_id,))
+        self.db.close_connection()
+        return report
+
+    def get_driver_status_report(self):
+        self.db.open_connection()
+        report = self.db.query("SELECT * from get_driver_status(%s)", (self.user_id,))
+        self.db.close_connection()
+        return report
+

@@ -56,15 +56,19 @@ def overview(user):
     st.write(f"Hello, {user.get_username()}")
     # Overview information according to the user's type
     st.write(user.user_type)
+    data = user.get_overview()  # get the overview data
     if user.user_type == 'Admin':
         st.write("Admin Overview Info")
-        data = user.get_overview()  # get the overview data
         df = pd.DataFrame(data, columns=["Número de driveros", "Número de Escuderias", "Número de Corridas", "Número de Temporadas"])
         st.dataframe(df,hide_index=True)
-    # elif user.user_type == 'constructor':
-    #     st.write("Constructor Overview Info")
-    # elif user.user_type == 'driver':
-    #     st.write("driver Overview Info")
+    elif user.user_type == 'Constructor':
+        st.write("Constructor Overview Info")
+        df = pd.DataFrame(data, columns=["Nome", "Num Vitórias", "Num Drivers", "Primeiro Ano", "Último Ano"])
+        st.dataframe(df, hide_index=True)
+    elif user.user_type == 'Driver':
+        st.write("Driver Overview Info")
+        df = pd.DataFrame(data, columns=["Nome", "Sobrenome", "Número de Vitórias", "Ano de Estréia", "Último Ano"])
+        st.dataframe(df, hide_index=True)
 
     # Path (button or link) to Screen 3
     # if st.button("Go to Reports"):
@@ -78,19 +82,25 @@ def reports(user):
             'Relatório - Status dos Pilotos': lambda: show_status_count_report(user),
             'Relatório - Aeroportos próximos à cidade': lambda: show_airports_near_city_report(user)
         }
-        st.session_state.page = st.radio("Go to", list(reports.keys()))
+        st.session_state.page = st.radio("Escolha", list(reports.keys()))
         reports[st.session_state.page]()
 
     elif user.user_type == 'Constructor':
-        if st.button("Constructor Report"):
-            # This function will return the constructor report
-            report = user.get_constructor_report()
-            st.write(report)
+        reports = {
+            'Relatório - Vitórias da Escuderia': lambda: show_constructor_wins_report(user),
+            'Relatório - Status da Escuderia': lambda: show_constructor_status_report(user)
+        }
+        st.session_state.page = st.radio("Escolha", list(reports.keys()))
+        reports[st.session_state.page]()
+           
     elif user.user_type == 'Driver':
-        if st.button("driver Report"):
-            # This function will return the driver report
-            report = user.get_driver_report()
-            st.write(report)
+        reports = {
+            'Relatório - Vitorias do Piloto': lambda: show_driver_wins_report(user),
+            'Relatório - Status do Piloto': lambda: show_driver_status_report(user)
+        }
+        st.session_state.page = st.radio("Escolha", list(reports.keys()))
+        reports[st.session_state.page]()
+            
 
 def show_status_count_report(user):
     st.title("Status Count Report")
@@ -105,8 +115,7 @@ def show_airports_near_city_report(user):
     if st.button("Buscar"):
         st.write("Aeroportos próximos a: ", city)
         report = user.get_airports_near_city_report(city)
-        st.write(report)
-        df = pd.DataFrame(report)
+        df = pd.DataFrame(report, columns=["Cidade Busca", "Sigla", "Nome", "Cidade Aeroporto", "Distancia (m)", "Tipo Aeroporto" ])
         st.dataframe(df,hide_index=True)
 
 def register_team():
@@ -149,6 +158,32 @@ def search_by_forename():
         # Then, it will cross-reference these drivers with the RESULTS table to find drivers who have raced for the logged-in team
         # The logic to do this is not included in this code
         st.success("Search complete")
+
+
+def show_constructor_wins_report(user):
+    st.title("Team Wins Report")
+    report = user.get_constructor_wins_report()
+    df = pd.DataFrame(report, columns=["Nome", "Num Vitórias"])
+    st.dataframe(df,hide_index=True)
+
+def show_constructor_status_report(user):
+    st.title("Team Status Report")
+    report = user.get_constructor_status_report()
+    df = pd.DataFrame(report, columns=["Status", "Numero"])
+    st.dataframe(df,hide_index=True)
+
+
+def show_driver_wins_report(user): 
+    st.title("Driver Wins Report")
+    report = user.get_driver_wins_report()
+    df = pd.DataFrame(report, columns=["ANO", "Nome", "Num Vitórias"])
+    st.dataframe(df,hide_index=True)
+
+def show_driver_status_report(user):
+    st.title("Driver Status Report")
+    report = user.get_driver_status_report()
+    df = pd.DataFrame(report, columns=["Status", "Numero"])
+    st.dataframe(df,hide_index=True)
 
 
 if __name__ == "__main__":
