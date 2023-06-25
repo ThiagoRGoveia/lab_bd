@@ -12,7 +12,7 @@ class DatabaseConnection:
     def open_connection(self):
         self.conn = psycopg2.connect(
             dbname=self.dbname,
-            user=self.user,
+            user=self.user.lower(),
             password=self.password,
             host=self.host,
             port=self.port
