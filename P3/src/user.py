@@ -51,7 +51,7 @@ class Admin(User):
 
     def get_overview(self):
         self.db.open_connection()
-        overview = self.db.query("SELECT * FROM overviewAdmin()")
+        overview = self.db.query("SELECT * FROM overview_admin()")
         self.db.close_connection()
         return overview
 
@@ -86,7 +86,7 @@ class Constructor(User):
 
     def get_overview(self):
         self.db.open_connection()
-        overview = self.db.query("SELECT * FROM overviewConstructor(%s)", (self.user_id,))
+        overview = self.db.query("SELECT * FROM overview_constructor(%s)", (self.user_id,))
         self.db.close_connection()
         return overview
 
@@ -112,7 +112,7 @@ class Driver(User):
 
     def get_overview(self):
         self.db.open_connection()
-        overview = self.db.query("SELECT * FROM overviewDriver(%s)", (self.user_id,))
+        overview = self.db.query("SELECT * FROM overview_driver(%s)", (self.user_id,))
         self.db.close_connection()
         return overview
         pass

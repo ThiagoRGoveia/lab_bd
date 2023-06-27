@@ -4,8 +4,8 @@ import os
 class DatabaseConnection:
     def __init__(self, user, password):
         self.dbname = os.environ.get('DB_NAME')
-        self.user = 'postgres'
-        self.password = 'changeme'
+        self.user = user
+        self.password = password
         self.host = os.environ.get('DB_HOST')
         self.port = os.environ.get('DB_PORT')
 
@@ -18,9 +18,6 @@ class DatabaseConnection:
             port=self.port
         )
         self.cur = self.conn.cursor()
-
-    def set_user_id(self, userid):
-        self.cur.execute("SET myvars.userid = %s", (userid,))
 
     def query(self, query, params=None):
         self.cur.execute(query, params)

@@ -14,7 +14,7 @@ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION overview_constructor(IDConstructor INT)
-RETURNS TABLE ("Nome" TEXT,"Num Vitórias" BIGINT, "Num Drivers" BIGINT, "Primeiro Ano" INT, "Último Ano" INT)
+RETURNS TABLE ("Nome" varchar(255),"Num Vitórias" BIGINT, "Num Drivers" BIGINT, "Primeiro Ano" INT, "Último Ano" INT)
 AS
 $$
 BEGIN
@@ -57,7 +57,7 @@ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION overview_driver(IDDriver INT)
-RETURNS TABLE ("Nome" TEXT, "Sobrenome" TEXT, "Número de Vitórias" BIGINT, "Ano de Estréia" INT, "Último ano" INT)
+RETURNS TABLE ("Nome" varchar(255), "Sobrenome" varchar(255), "Número de Vitórias" BIGINT, "Ano de Estréia" INT, "Último ano" INT)
 AS
 $$
 BEGIN
