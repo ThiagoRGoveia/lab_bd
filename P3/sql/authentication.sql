@@ -7,7 +7,7 @@ ALTER TABLE driver ENABLE ROW LEVEL SECURITY;
 
 
 -- USER INSERTS
-INSERT INTO users (login, password, type, originalid) VALUES ('admin', 'admin', 'Admin', null);
+INSERT INTO users (login, password, type, originalid) VALUES ('admin', md5('admin'), 'Admin', null);
 ALTER USER admin WITH SUPERUSER
 
 
