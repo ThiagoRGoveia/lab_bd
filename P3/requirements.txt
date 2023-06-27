@@ -1,4 +1,4 @@
 psycopg2
 jurigged
 streamlit
-python-dotenv
+python_dotenv
