@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION createConstructor(_ConstructorRef VARCHAR, _Name VARCHAR, _Nationality VARCHAR, _URL VARCHAR)
+CREATE OR REPLACE FUNCTION create_constructor(_ConstructorRef VARCHAR, _Name VARCHAR, _Nationality VARCHAR, _URL VARCHAR)
 RETURNS VOID AS $$
 DECLARE 
     _constructorid INT;
@@ -13,7 +13,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION createDriver(_DriverRef VARCHAR, _Number INT, _Code VARCHAR, _Forename VARCHAR, _Surname VARCHAR, _DateOfBirth DATE, _Nationality VARCHAR)
+CREATE OR REPLACE FUNCTION create_driver(_DriverRef VARCHAR, _Number INT, _Code VARCHAR, _Forename VARCHAR, _Surname VARCHAR, _DateOfBirth DATE, _Nationality VARCHAR)
 RETURNS VOID AS $$
 DECLARE 
     _DriverID INT;
@@ -28,7 +28,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION searchDriverByName(_Forename TEXT, _ConstructorRef VARCHAR)
+CREATE OR REPLACE FUNCTION search_driver_by_name(_Forename TEXT, _ConstructorRef VARCHAR)
 RETURNS TABLE(FullName TEXT, DateOfBirth DATE, Nationality VARCHAR) AS $$
 BEGIN
     RETURN QUERY
