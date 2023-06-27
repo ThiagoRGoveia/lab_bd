@@ -10,21 +10,60 @@ ALTER TABLE driver ENABLE ROW LEVEL SECURITY;
 INSERT INTO users (login, password, type, originalid) VALUES ('admin', 'admin', 'Admin', null);
 
 -- INSERT DRIVES INTO USERS TABLE
-INSERT INTO users (login, password, type, originalid)
-SELECT LOWER(CONCAT(driverref, '_d')) AS login,
-       md5(LOWER(driverref)) AS password,
-       'Driver' AS type,
-       driverid AS originalid
-FROM driver;
+CREATE OR REPLACE FUNCTION sync_driver_users_from_driver()
+RETURNS void AS
+$$
+DECLARE
+   rec RECORD;
+BEGIN
+   FOR rec IN
+       SELECT LOWER(CONCAT(driverref, '_d')) AS login,
+              md5(LOWER(driverref)) AS password,
+              'Driver' AS type,
+              driverid AS originalid
+       FROM driver
+   LOOP
+       INSERT INTO users (login, password, type, originalid)
+       VALUES (rec.login, rec.password, rec.type, rec.originalid);
+
+       -- Call create_db_user function with login and password parameters
+       PERFORM create_db_user(rec.login, rec.password, rec.type);
+   END LOOP;
+   RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+SELECT  sync_driver_users_from_driver();
+
+
 
 
 -- INSERT CONSTRUCTORS INTO USERS TABLE
-INSERT INTO users (login, password, type, originalid)
-SELECT LOWER(CONCAT(constructorref, '_d')) AS login,
-       md5(LOWER(constructorref)) AS password,
-       'Driver' AS type,
-       constructorid AS originalid
-FROM constructors;
+CREATE OR REPLACE FUNCTION sync_constructor_users_from_constructor()
+RETURNS void AS
+$$
+DECLARE
+   rec RECORD;
+BEGIN
+    FOR rec IN
+         SELECT LOWER(CONCAT(constructorref, '_c')) AS login,
+                  md5(LOWER(constructorref)) AS password,
+                  'Constructor' AS type,
+                  constructorid AS originalid
+         FROM constructors
+    LOOP
+         INSERT INTO users (login, password, type, originalid)
+         VALUES (rec.login, rec.password, rec.type, rec.originalid);
+    
+         -- Call create_db_user function with login and password parameters
+         PERFORM create_db_user(rec.login, rec.password, rec.type);
+    END LOOP;
+    RETURN;
+    END;
+$$ LANGUAGE plpgsql;
+
+SELECT sync_constructor_users_from_constructor();
+
 
 -- ADMIN ROLE
 CREATE ROLE admin_role;
@@ -59,6 +98,13 @@ GRANT SELECT ON constructors TO constructor_role;
 GRANT SELECT ON qualifying TO constructor_role;
 GRANT SELECT ON results TO constructor_role;
 GRANT SELECT ON driver TO constructor_role;
+GRANT SELECT ON status TO driver_role;
+
+DROP POLICY IF EXISTS constructor_users_policy ON users;
+DROP POLICY IF EXISTS constructor_qualifying_policy ON qualifying;
+DROP POLICY IF EXISTS constructor_results_policy ON results;
+DROP POLICY IF EXISTS constructor_results_policy ON constructors;
+DROP POLICY IF EXISTS constructor_driver_policy ON driver;
 
 -- Apply policies
 -- Policy to allow select on users table only to the user that created the row
@@ -71,22 +117,22 @@ CREATE POLICY constructor_users_policy ON users
 CREATE POLICY constructor_qualifying_policy ON qualifying
     FOR SELECT
     TO constructor_role
-    USING (EXISTS (select 1 from users where login = current_user and originalid = constructorid limit 1));
+    USING (EXISTS (SELECT 1 FROM users WHERE login = current_user and originalid = constructorid limit 1));
 
 CREATE POLICY constructor_results_policy ON results
 FOR SELECT
     TO constructor_role
-    USING (EXISTS (select 1 from users where login = current_user and originalid = constructorid limit 1));
+    USING (EXISTS (SELECT 1 FROM users WHERE login = current_user and originalid = constructorid limit 1));
 
 CREATE POLICY constructor_results_policy ON constructors
 FOR SELECT
     TO constructor_role
-    USING (EXISTS (select 1 from users where login = current_user and originalid = constructorid limit 1));
+    USING (EXISTS (SELECT 1 FROM users WHERE login = current_user and originalid = constructorid limit 1));
 
 CREATE POLICY constructor_driver_policy ON driver
 FOR SELECT
     TO constructor_role
-    USING (EXISTS (select 1 from results where constructorid in (select constructorid from users where login = current_user)
+    USING (EXISTS (SELECT 1 FROM results WHERE constructorid in (SELECT constructorid FROM users WHERE login = current_user)
                      and driver.driverid = results.driverid
     LIMIT 1));
 
@@ -102,3 +148,34 @@ GRANT SELECT ON results TO driver_role;
 GRANT SELECT ON driver TO driver_role;
 GRANT SELECT ON races TO driver_role;
 
+
+DROP POLICY IF EXISTS driver_qualifying_policy ON qualifying;
+DROP POLICY IF EXISTS driver_results_policy ON results;
+DROP POLICY IF EXISTS driver_driver_policy ON driver;
+DROP POLICY IF EXISTS driver_races_policy ON races;
+
+CREATE POLICY driver_qualifying_policy ON qualifying
+    FOR SELECT
+    TO driver_role
+    USING (EXISTS (SELECT 1 FROM users WHERE login = current_user and originalid = driverid limit 1));
+
+CREATE POLICY driver_results_policy ON results
+FOR SELECT
+    TO driver_role
+    USING (EXISTS (SELECT 1 FROM users WHERE login = current_user and originalid = driverid limit 1));
+
+
+CREATE POLICY driver_driver_policy ON driver
+FOR SELECT
+    TO driver_role
+    USING (EXISTS (SELECT 1 FROM users WHERE login = current_user and originalid = driverid LIMIT 1));
+
+
+CREATE POLICY driver_races_policy
+ON races FOR
+SELECT  TO driver_role USING (EXISTS (
+SELECT  1
+FROM results
+WHERE driverid IN ( SELECT originalid FROM users WHERE login = current_user)
+AND results.raceid = races.raceid
+LIMIT 1));
