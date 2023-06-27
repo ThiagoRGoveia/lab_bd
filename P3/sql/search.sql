@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION searchDriverByName(_Forename TEXT, _ConstructorRef VARCHAR)
+CREATE OR REPLACE FUNCTION search_driver_by_name(_Forename TEXT, _ConstructorRef VARCHAR)
 RETURNS TABLE(FullName TEXT, DateOfBirth DATE, Nationality VARCHAR) AS $$
 BEGIN
     RETURN QUERY

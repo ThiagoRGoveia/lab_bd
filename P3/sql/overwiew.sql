@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION overviewAdmin()
+CREATE OR REPLACE FUNCTION overview_admin()
 RETURNS TABLE ("Num Pilotos" BIGINT, "Num Escuderias" BIGINT, "Num Corridas" BIGINT, "Num Temporadas" BIGINT)
 AS
 $$
@@ -13,7 +13,7 @@ $$
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION overviewConstructor(IDConstructor INT)
+CREATE OR REPLACE FUNCTION overview_constructor(IDConstructor INT)
 RETURNS TABLE ("Nome" TEXT,"Num Vitórias" BIGINT, "Num Drivers" BIGINT, "Primeiro Ano" INT, "Último Ano" INT)
 AS
 $$
@@ -56,7 +56,7 @@ $$
 LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION overviewDriver(IDDriver INT)
+CREATE OR REPLACE FUNCTION overview_driver(IDDriver INT)
 RETURNS TABLE ("Nome" TEXT, "Sobrenome" TEXT, "Número de Vitórias" BIGINT, "Ano de Estréia" INT, "Último ano" INT)
 AS
 $$
