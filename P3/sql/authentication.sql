@@ -8,6 +8,8 @@ ALTER TABLE driver ENABLE ROW LEVEL SECURITY;
 
 -- USER INSERTS
 INSERT INTO users (login, password, type, originalid) VALUES ('admin', 'admin', 'Admin', null);
+CREATE USER admin WITH PASSWORD 'admin';
+GRANT admin_role TO admin;
 
 -- INSERT DRIVES INTO USERS TABLE
 CREATE OR REPLACE FUNCTION sync_driver_users_from_driver()
