@@ -8,8 +8,8 @@ ALTER TABLE driver ENABLE ROW LEVEL SECURITY;
 
 -- USER INSERTS
 INSERT INTO users (login, password, type, originalid) VALUES ('admin', 'admin', 'Admin', null);
-CREATE USER admin WITH PASSWORD 'admin';
-GRANT admin_role TO admin;
+ALTER USER admin WITH SUPERUSER
+
 
 -- INSERT DRIVES INTO USERS TABLE
 CREATE OR REPLACE FUNCTION sync_driver_users_from_driver()
@@ -65,26 +65,6 @@ BEGIN
 $$ LANGUAGE plpgsql;
 
 SELECT sync_constructor_users_from_constructor();
-
-
--- ADMIN ROLE
-CREATE ROLE admin_role;
-
--- Grant privileges to the role
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO admin_role;
-GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO admin_role;
-
--- Grant usage privilege on the schema
-GRANT USAGE, CREATE ON SCHEMA public TO admin_role;
-
--- Grant access to future tables, sequences, and functions
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT ALL PRIVILEGES ON TABLES TO admin_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT ALL PRIVILEGES ON SEQUENCES TO admin_role;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT ALL PRIVILEGES ON FUNCTIONS TO admin_role;
 
 
 -- CONSTRUCTOR ROLE

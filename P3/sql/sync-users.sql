@@ -47,9 +47,7 @@ CREATE OR REPLACE FUNCTION create_db_user(login varchar(255), password varchar(2
     DECLARE
         user_role NAME;
     BEGIN
-        IF type = 'Admin' THEN
-            user_role := 'admin_role';
-        ELSIF type = 'Constructor' THEN
+        IF type = 'Constructor' THEN
             user_role := 'constructor_role';
         ELSIF type = 'Driver' THEN
             user_role := 'driver_role';
