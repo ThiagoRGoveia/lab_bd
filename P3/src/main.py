@@ -18,9 +18,9 @@ def main():
         'Login': login,
         'Overview': lambda: overview(st.session_state.user),
         'Reports': lambda: reports(st.session_state.user),
-        'Register Team': register_team,
-        'Register Driver': register_driver,
-        'Search by Forename': search_by_forename
+        'Register Team': lambda: register_team(st.session_state.user),
+        'Register Driver': lambda: register_driver(st.session_state.user),
+        'Search by Forename': lambda: search_by_forename(st.session_state.user)
     }
 
     st.session_state.page = st.sidebar.radio("Go to", list(pages.keys()))
@@ -118,21 +118,23 @@ def show_airports_near_city_report(user):
         df = pd.DataFrame(report, columns=["Cidade Busca", "Sigla", "Nome", "Cidade Aeroporto", "Distancia (m)", "Tipo Aeroporto" ])
         st.dataframe(df,hide_index=True)
 
-def register_team():
+def register_team(user):
     st.title("Register Team")
     ConstructorRef = st.text_input("Constructor Reference")
     Name = st.text_input("Name")
     Nationality = st.text_input("Nationality")
-    URL = st.text_input("URL")
+    url = st.text_input("URL")
 
-    if st.button("Register Team"):
-        # This function will add the team to the CONSTRUCTORS table in the database
-        # Also, a trigger should be set on this table to add the user to the USERS table
-        # The logic to do this is not included in this code
-        st.success("Team registered successfully")
+    if user.user_type == 'Admin':
+        if st.button("Register Team"):
+            try:
+                user.create_constructor(ConstructorRef, Name, Nationality, url)
+                st.success("Team registered successfully")
+            except Exception as e:
+                st.error("Team registration failed, error: " + str(e))
 
 
-def register_driver():
+def register_driver(user):
     st.title("Register Driver")
     DriverRef = st.text_input("Driver Reference")
     Number = st.text_input("Number")
@@ -142,22 +144,33 @@ def register_driver():
     Date_of_Birth = st.date_input("Date of Birth")
     Nationality = st.text_input("Nationality")
 
-    if st.button("Register Driver"):
-        # This function will add the driver to the DRIVERS table in the database
-        # Also, a trigger should be set on this table to add the user to the USERS table
-        # The logic to do this is not included in this code
-        st.success("Driver registered successfully")
+    if user.user_type == 'Admin':
+        if st.button("Register Driver"):
+            try: 
+                user.create_driver(DriverRef, Number, Code, Forename, Surname, Date_of_Birth, Nationality)
+                st.success("Driver registered successfully")
+            except Exception as e:
+                st.error("Driver registration failed, error: " + str(e))
+        
 
 
-def search_by_forename():
+def search_by_forename(user):
     st.title("Search by Forename")
     Forename = st.text_input("Forename")
+    Constructor_Id = st.text_input("Constructor Id")
 
-    if st.button("Search"):
-        # This function will search the DRIVERS table for drivers with the input forename
-        # Then, it will cross-reference these drivers with the RESULTS table to find drivers who have raced for the logged-in team
-        # The logic to do this is not included in this code
-        st.success("Search complete")
+    if user.user_type == 'Constructor':
+        if st.button("Search"):
+            try:
+                result = user.search_driver_by_forename(Forename, Constructor_Id)
+                
+                # Displaying the result of the search to the user
+                for row in result:
+                    st.write(f"Full Name: {row[0]}, Date of Birth: {row[1]}, Nationality: {row[2]}")
+                    st.success("Search complete")   
+
+            except Exception as e:
+                st.error("Search failed, error: " + str(e))
 
 
 def show_constructor_wins_report(user):

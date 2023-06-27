@@ -35,11 +35,11 @@ class User:
     def get_username(self):
         return self.username
     
-    def create_constructor(self):
-        raise Exception("This user is not allowed to create a team")
+    # def create_constructor(self):
+    #     raise Exception("This user is not allowed to create a team")
 
-    def create_driver(self):
-        raise Exception("This user is not allowed to create a driver")
+    # def create_driver(self):
+    #     raise Exception("This user is not allowed to create a driver")
 
 
 
@@ -67,17 +67,15 @@ class Admin(User):
         self.db.close_connection()
         return report
 
-    def create_constructor(self):
-        """
-        This method should create a team
-        """
-        pass
+    def create_constructor(self, constructorRef, name, nationality, url):
+        self.db.open_connection()
+        self.db.query("SELECT createConstructor(%s, %s, %s, %s)", (constructorRef, name, nationality, url))
+        self.db.close_connection()
 
-    def create_driver(self):
-        """
-        This method should create a driver
-        """
-        pass
+    def create_driver(self, driverRef, number, code, forename, surname, dateOfBirth, nationality):
+        self.db.open_connection()
+        self.db.query("SELECT createDriver(%s, %s, %s, %s, %s, %s, %s)", (driverRef, number, code, forename, surname, dateOfBirth, nationality))
+        self.db.close_connection()
     
 
 class Constructor(User):
@@ -102,8 +100,11 @@ class Constructor(User):
         self.db.close_connection()
         return report
 
-    def search_driver(self):
-        pass
+    def search_driver_by_forename(self, forename, constructorRef):
+        self.db.open_connection()
+        result = self.db.query("SELECT * from searchDriverByName(%s, %s)", (forename, constructorRef))
+        self.db.close_connection()
+        return result
 
 
 class Driver(User):
