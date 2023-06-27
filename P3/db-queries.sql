@@ -452,88 +452,8 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 
--- Create a trigger that calls the function when a new row is inserted
-CREATE TRIGGER user_insertion AFTER INSERT ON USERS
-FOR EACH ROW EXECUTE PROCEDURE create_db_user();
 
 
 
 
-
-
--- ROLE MANAGEMENT
-CREATE ROLE admin_role;
-CREATE ROLE constructor_role;
-CREATE ROLE driver_role;
-
-
-
-
--- Admin has free access
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO admin_role;
-
-
--- constructor can access constructors and drivers
-GRANT SELECT, UPDATE, INSERT, DELETE ON constructors, driver TO constructor_role;
-
-
--- Driver can access results
-GRANT SELECT, UPDATE, INSERT, DELETE ON results TO driver_role;
-
-
-
-
--- Enable row level security
-ALTER TABLE constructors ENABLE ROW LEVEL SECURITY;
-ALTER TABLE driver ENABLE ROW LEVEL SECURITY;
-
-
--- For constructor, they can only access rows that belong to them
-CREATE POLICY constructor_constructors_policy ON constructors
-USING (ConstructorId = current_setting('env.userid')::int);
-
-
-CREATE POLICY constructor_drivers_policy ON results
-USING (ConstructorId = current_setting('env.constructorid')::int);
-
-
-
-
--- Enable row level security
-ALTER TABLE results ENABLE ROW LEVEL SECURITY;
-
-
--- For drivers, they can only access rows that belong to them
-CREATE POLICY driver_results_policy ON results
-USING (DriverId = current_setting('env.userid')::int);
-
-
-SELECT usename AS role_name,
-CASE
-WHEN usesuper AND usecreatedb THEN
-CAST('superuser, create database' AS pg_catalog.text)
-WHEN usesuper THEN
-CAST('superuser' AS pg_catalog.text)
-WHEN usecreatedb THEN
-CAST('create database' AS pg_catalog.text)
-ELSE
-CAST('' AS pg_catalog.text)
-END role_attributes
-FROM pg_catalog.pg_user
-ORDER BY role_name desc;
-
-
-create user test with password 'test'
-create user constructor with password 'constructor'
-
-
-DROP TRIGGER IF EXISTS sync_driver_users_trigger ON driver CASCADE;
-DROP TRIGGER IF EXISTS sync_team_users_trigger ON constructors CASCADE;
-DROP TRIGGER IF EXISTS user_insertion ON USERS CASCADE;
-
-
--- Drop functions
-DROP FUNCTION IF EXISTS sync_driver_users() CASCADE;
-DROP FUNCTION IF EXISTS sync_team_users() CASCADE;
-DROP FUNCTION IF EXISTS create_db_user() CASCADE;
 
