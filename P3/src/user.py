@@ -69,13 +69,17 @@ class Admin(User):
 
     def create_constructor(self, constructorRef, name, nationality, url):
         self.db.open_connection()
-        self.db.query("SELECT createConstructor(%s, %s, %s, %s)", (constructorRef, name, nationality, url))
+        query = self.db.cur.execute("SELECT * from create_constructor(%s, %s, %s, %s)", (constructorRef, name, nationality, url))
+        self.db.conn.commit()
         self.db.close_connection()
+        return query
 
-    def create_driver(self, driverRef, number, code, forename, surname, dateOfBirth, nationality):
+    def create_driver(self, driverRef, number, code, forename, surname, dateOfBirth, nationality, url):
         self.db.open_connection()
-        self.db.query("SELECT createDriver(%s, %s, %s, %s, %s, %s, %s)", (driverRef, number, code, forename, surname, dateOfBirth, nationality))
+        query = self.db.cur.execute("SELECT * from create_driver(%s, %s, %s, %s, %s, %s, %s)", (driverRef, number, code, forename, surname, dateOfBirth, nationality, url))
+        self.db.conn.commit()
         self.db.close_connection()
+        return query
     
 
 class Constructor(User):
@@ -100,9 +104,9 @@ class Constructor(User):
         self.db.close_connection()
         return report
 
-    def search_driver_by_forename(self, forename, constructorRef):
+    def search_driver_by_forename(self, forename):
         self.db.open_connection()
-        result = self.db.query("SELECT * from searchDriverByName(%s, %s)", (forename, constructorRef))
+        result = self.db.query("SELECT * from search_driver_by_name(%s, %s)", (forename, self.user_id))
         self.db.close_connection()
         return result
 

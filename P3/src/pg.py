@@ -24,7 +24,9 @@ class DatabaseConnection:
         return self.cur.fetchall()
 
     def close_connection(self):
+        self.cur.close()
         self.conn.close()
+        
 
 # Usage:
 # db = DatabaseConnection(dbname="your_database_name", user="your_username", password="your_password")

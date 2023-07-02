@@ -18,7 +18,7 @@ def main():
         'Login': login,
         'Overview': lambda: overview(st.session_state.user),
         'Reports': lambda: reports(st.session_state.user),
-        'Register Team': lambda: register_team(st.session_state.user),
+        'Register Constructor': lambda: register_constructor(st.session_state.user),
         'Register Driver': lambda: register_driver(st.session_state.user),
         'Search by Forename': lambda: search_by_forename(st.session_state.user)
     }
@@ -118,36 +118,41 @@ def show_airports_near_city_report(user):
         df = pd.DataFrame(report, columns=["Cidade Busca", "Sigla", "Nome", "Cidade Aeroporto", "Distancia (m)", "Tipo Aeroporto" ])
         st.dataframe(df,hide_index=True)
 
-def register_team(user):
-    st.title("Register Team")
-    ConstructorRef = st.text_input("Constructor Reference")
-    Name = st.text_input("Name")
-    Nationality = st.text_input("Nationality")
-    url = st.text_input("URL")
-
-    if user.user_type == 'Admin':
-        if st.button("Register Team"):
+def register_constructor(user):
+    if (user.user_type) != 'Admin':
+        st.write("Access not allowed! Go back.")
+    else:
+        st.title("Register Constructor")
+        ConstructorRef = st.text_input("Constructor Reference")
+        Name = st.text_input("Name")
+        Nationality = st.text_input("Nationality")
+        url = st.text_input("URL")
+        if st.button("Register Constructor"):
             try:
-                user.create_constructor(ConstructorRef, Name, Nationality, url)
-                st.success("Team registered successfully")
+                create = user.create_constructor(ConstructorRef, Name, Nationality, url)
+                st.success("Constructor registered successfully")
             except Exception as e:
-                st.error("Team registration failed, error: " + str(e))
+                st.error("Constructor registration failed, error: " + str(e))
 
 
 def register_driver(user):
-    st.title("Register Driver")
-    DriverRef = st.text_input("Driver Reference")
-    Number = st.text_input("Number")
-    Code = st.text_input("Code")
-    Forename = st.text_input("Forename")
-    Surname = st.text_input("Surname")
-    Date_of_Birth = st.date_input("Date of Birth")
-    Nationality = st.text_input("Nationality")
 
-    if user.user_type == 'Admin':
+    if (user.user_type) != 'Admin':
+        st.write("Access not allowed! Go back.")
+    else:
+        st.title("Register Driver")
+        DriverRef = st.text_input("Driver Reference")
+        Number = st.text_input("Number")
+        Code = st.text_input("Code")
+        Forename = st.text_input("Forename")
+        Surname = st.text_input("Surname")
+        Date_of_Birth = st.date_input("Date of Birth")
+        Nationality = st.text_input("Nationality")
+        URL = st.text_input("URL")
+
         if st.button("Register Driver"):
             try: 
-                user.create_driver(DriverRef, Number, Code, Forename, Surname, Date_of_Birth, Nationality)
+                user.create_driver(DriverRef, Number, Code, Forename, Surname, Date_of_Birth, Nationality,URL)
                 st.success("Driver registered successfully")
             except Exception as e:
                 st.error("Driver registration failed, error: " + str(e))
@@ -155,15 +160,15 @@ def register_driver(user):
 
 
 def search_by_forename(user):
-    st.title("Search by Forename")
-    Forename = st.text_input("Forename")
-    Constructor_Id = st.text_input("Constructor Id")
 
-    if user.user_type == 'Constructor':
+    if (user.user_type) != 'Constructor':
+        st.write("Access not allowed! Go back.")
+    else:
+        st.title("Search by Forename")
+        Forename = st.text_input("Forename")
         if st.button("Search"):
             try:
-                result = user.search_driver_by_forename(Forename, Constructor_Id)
-                
+                result = user.search_driver_by_forename(Forename)
                 # Displaying the result of the search to the user
                 for row in result:
                     st.write(f"Full Name: {row[0]}, Date of Birth: {row[1]}, Nationality: {row[2]}")
