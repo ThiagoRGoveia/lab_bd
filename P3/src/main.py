@@ -57,7 +57,7 @@ def overview(user):
     data = user.get_overview()  # get the overview data
     if user.user_type == 'Admin':
         st.write("Admin Overview Info")
-        df = pd.DataFrame(data, columns=["Número de driveros", "Número de Escuderias", "Número de Corridas", "Número de Temporadas"])
+        df = pd.DataFrame(data, columns=["Número de pilotos", "Número de Escuderias", "Número de Corridas", "Número de Temporadas"])
         st.dataframe(df,hide_index=True)
     elif user.user_type == 'Constructor':
         st.write("Constructor Overview Info")
