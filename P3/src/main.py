@@ -53,9 +53,7 @@ def overview(user):
     st.title("Overview Screen")
     
     # The name of the logged-in user, depending on their type
-    st.write(f"Hello, {user.get_username()}")
     # Overview information according to the user's type
-    st.write(user.user_type)
     data = user.get_overview()  # get the overview data
     if user.user_type == 'Admin':
         st.write("Admin Overview Info")
@@ -194,7 +192,7 @@ def show_constructor_status_report(user):
 def show_driver_wins_report(user): 
     st.title("Driver Wins Report")
     report = user.get_driver_wins_report()
-    df = pd.DataFrame(report, columns=["ANO", "Nome", "Num Vitórias"])
+    df = pd.DataFrame(report, columns=["Ano", "Corrida", "Nome", "Num Vitórias"])
     st.dataframe(df,hide_index=True)
 
 def show_driver_status_report(user):

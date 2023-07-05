@@ -94,7 +94,7 @@ class Constructor(User):
 
     def get_constructor_wins_report(self):
         self.db.open_connection()
-        report = self.db.query("SELECT * from get_driver_wins(%s)", (self.user_id,))
+        report = self.db.query("SELECT * from get_constructor_driver_wins(%s)", (self.user_id,))
         self.db.close_connection()
         return report
 
@@ -124,7 +124,7 @@ class Driver(User):
 
     def get_driver_wins_report(self):
         self.db.open_connection()
-        report = self.db.query("SELECT * from get_driver_victories(%s)", (self.user_id,))
+        report = self.db.query("SELECT * from get_driver_wins(%s)", (self.user_id,))
         self.db.close_connection()
         return report
 
